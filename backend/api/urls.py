@@ -20,9 +20,15 @@ urlpatterns = [
     path('posts/like/', api_views.LikePostView.as_view()),
     path('posts/comment/', api_views.PostCommentView.as_view()),
 
+    # author endpoints
+    path('author/dashboard/stats/<user_id>', api_views.DashboardStats.as_view(), name='dashboardstats'),
+    path('author/dashboard/posts/<user_id>', api_views.DashboardPostList.as_view()),
+    path('author/dashboard/comments/<user_id>', api_views.DashboardCommentList.as_view()),
+    path('author/dashboard/notifications/<user_id>', api_views.DashboardNotificationList.as_view()),
+    path('author/dashboard/mark-notification/', api_views.DashboardMarkNofication.as_view()),
+    path('author/dashboard/comment-reply/', api_views.DashboardReplyCommentApi.as_view()),
+    path('author/dashboard/post-edit/', api_views.DashboardPostEditApi.as_view()),
+
+
 ]
 
-{
-    'user_id': '1',
-    'post_id': '2',
-}

@@ -4,6 +4,7 @@ from django.contrib.auth.models import (
     PermissionsMixin,
     BaseUserManager
 )
+
 import uuid
 from django.conf import settings
 from shortuuid.django_fields import ShortUUIDField
@@ -126,6 +127,7 @@ class Post(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, 
                                blank=True, related_name='author')
+    # profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
     image = models.FileField(upload_to='post', null=True, blank=True)
@@ -134,15 +136,24 @@ class Post(models.Model):
     views = models.IntegerField(default=0, blank=True)
     likes = models.ManyToManyField(User, blank=True)
     date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    tags = models.CharField(max_length=255, null=True, blank=True)
+
 
     def __str__(self):
         return self.title
     
     def save(self, *args, **kwargs):
         if self.slug == '' or self.slug == None:
-            self.slug = slugify(self.title) + '-' + shortuuid.uuid()[:2]
+            self.slug = slugify(self.title[0:40]) + '-' + shortuuid.uuid()[:2]
             self.status = 'Active'
         super(Post, self).save(*args, **kwargs)
+ 
+    def get_author_image(self):
+        print("here")
+        if self.author and hasattr(self.author, 'profile') and self.author.profile.image:
+            return self.author.profile.image.url
+        else:
+            return '/static/images/default_profile.png'
 
     class Meta:
         ordering = ['-date']
@@ -173,7 +184,8 @@ class Comment(models.Model):
     comment = models.TextField(null=True, blank=True)
     date = models.DateTimeField(auto_now=True, null=True, blank=True)
     likes = models.IntegerField(default=0)
-
+    reply = models.TextField(null=True, blank=True)
+    
     class Meta:
         ordering = ['-date']
         verbose_name_plural = 'Comment'
@@ -181,7 +193,6 @@ class Comment(models.Model):
     def __str__(self):
         return self.post.title + " " + self.comment
     
-
 
 class Notification(models.Model):
     """Model for notifications"""
@@ -207,6 +218,5 @@ class Notification(models.Model):
             return f'{self.user} Replied to a comment on your post: {self.post.title}'
 
     class Meta:
-        unique_together = ('user', 'post', 'type') 
         ordering = ['-date']
         verbose_name_plural = "Notification"

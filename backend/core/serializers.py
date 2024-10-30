@@ -88,18 +88,23 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     """Serialzer for creating Posts"""
+    author_bio = serializers.ReadOnlyField(source='author.profile.bio')
+    author_name = serializers.ReadOnlyField(source='author.full_name')
+    category = serializers.ReadOnlyField(source='category.title')
 
     class Meta:
         model = models.Post
         fields = '__all__'
+        extra_fields = ['author_bio', 'author_name', 'category',]
     
     def __init__(self, *args, **kwargs):
+       
         super(PostSerializer, self).__init__(*args, **kwargs)
         request = self.context.get('request')
         if request and request.method == 'POST':
             self.Meta.depth = 0
         else:
-            self.Meta.depth = 0
+            self.Meta.depth = 1
 
 
 class NotificationSerializer(serializers.ModelSerializer):
