@@ -174,8 +174,10 @@ class PostCommentView(APIView):
     )
     def post(self, request):
         post_id = request.data['post_id']
-        user = request.user
+        user_id = request.data['user_id']
         comment = request.data['comment']
+
+        user = models.User.objects.get(id=user_id)
 
         post = models.Post.objects.get(id=post_id)
 

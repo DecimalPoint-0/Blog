@@ -73,9 +73,12 @@ class CategorySerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Serializer for Comment"""
 
+    commenter_image = serializers.FileField()
+
     class Meta:
         model = models.Comment
         fields = '__all__'
+        extra_fields = ['commenter_image']
     
     def __init__(self, *args, **kwargs):
         super(CommentSerializer, self).__init__(*args, **kwargs)
@@ -91,11 +94,13 @@ class PostSerializer(serializers.ModelSerializer):
     author_bio = serializers.ReadOnlyField(source='author.profile.bio')
     author_name = serializers.ReadOnlyField(source='author.full_name')
     category = serializers.ReadOnlyField(source='category.title')
+    author_image = serializers.FileField()
+    comments = CommentSerializer(many=True)
 
     class Meta:
         model = models.Post
         fields = '__all__'
-        extra_fields = ['author_bio', 'author_name', 'category',]
+        extra_fields = ['author_bio', 'author_name', 'category', 'author_image']
     
     def __init__(self, *args, **kwargs):
        

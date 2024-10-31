@@ -127,7 +127,6 @@ class Post(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, 
                                blank=True, related_name='author')
-    # profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
     image = models.FileField(upload_to='post', null=True, blank=True)
@@ -148,12 +147,13 @@ class Post(models.Model):
             self.status = 'Active'
         super(Post, self).save(*args, **kwargs)
  
-    def get_author_image(self):
-        print("here")
-        if self.author and hasattr(self.author, 'profile') and self.author.profile.image:
-            return self.author.profile.image.url
-        else:
-            return '/static/images/default_profile.png'
+    def author_image(self):
+        profile = Profile.objects.get(user=self.author)
+        profile_image = profile.image
+        return profile_image
+    
+    def comments(self):
+        return Comment.objects.filter(post=self)
 
     class Meta:
         ordering = ['-date']
@@ -192,6 +192,12 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.post.title + " " + self.comment
+    
+    def commenter_image(self):
+        user = Profile.objects.get(user=self.user)
+        image = user.image
+        return image
+
     
 
 class Notification(models.Model):
