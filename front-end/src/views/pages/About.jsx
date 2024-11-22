@@ -1,7 +1,26 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../partials/Header";
 import Footer from "../partials/Footer";
+import apiInstance from "../../utils/axios";
+
 function About() {
+
+    const [team, setTeam] = useState([])
+
+    const fetchTeam = async () => {
+        try {
+            const response = await apiInstance.get('team/')
+            setTeam(response.data)
+            console.log(team)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        fetchTeam()
+    }, [])
+
     return (
         <>
             <Header />
@@ -38,57 +57,23 @@ function About() {
                             </ul>
                             <h3 className="mb-3 mt-5">Our team</h3>
                             <div className="row g-4">
-                                <div className="col-sm-6 col-lg-3">
-                                    <div className="text-center">
-                                        <div className="avatar avatar-xxl mb-2">
-                                            <img
-                                                className="avatar-img rounded-circle"
-                                                style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                                                src="https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8ZmFjZXxlbnwwfHwwfHx8MA%3D%3D"
-                                                alt="avatar"
-                                            />
+                                {team?.map((t, index) => (
+                                    <div className="col-sm-6 col-lg-3">
+                                        <div className="text-center">
+                                            <div className="avatar avatar-xxl mb-2">
+                                                <img
+                                                    className="avatar-img rounded-circle"
+                                                    style={{ width: "100px", height: "100px", objectFit: "cover" }}
+                                                    src={t?.image}
+                                                    alt="avatar"
+                                                />
+                                            </div>
+                                            <h5>{t.full_name}</h5>
+                                            <p className="m-0">{t?.position}</p>
                                         </div>
-                                        <h5>Louis Ferguson</h5>
-                                        <p className="m-0">Editor in Chief</p>
                                     </div>
-                                </div>
-                                <div className="col-sm-6 col-lg-3">
-                                    <div className="text-center">
-                                        <div className="avatar avatar-xxl mb-2">
-                                            <img className="avatar-img rounded-circle" style={{ width: "100px", height: "100px", objectFit: "cover" }} src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVSPtLWfht2p015onFngljcoIuA9xc8h3RLA&usqp=CAU" alt="avatar" />{" "}
-                                        </div>
-                                        <h5>Frances Guerrero</h5>
-                                        <p className="m-0">Managing Editor</p>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6 col-lg-3">
-                                    <div className="text-center">
-                                        <div className="avatar avatar-xxl mb-2">
-                                            <img
-                                                className="avatar-img rounded-circle"
-                                                style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                                                src="https://www.byrdie.com/thmb/aZWxblVz7BMxeObHtJEKX_ddV3c=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/Stocksy_txpce733110Uae300_Medium_4082489-df45caed45cd449b806f9ce16a20804a.jpg"
-                                                alt="avatar"
-                                            />{" "}
-                                        </div>
-                                        <h5>Larry Lawson</h5>
-                                        <p className="m-0">Director Graphics </p>
-                                    </div>
-                                </div>
-                                <div className="col-sm-6 col-lg-3">
-                                    <div className="text-center">
-                                        <div className="avatar avatar-xxl mb-2">
-                                            <img
-                                                className="avatar-img rounded-circle"
-                                                style={{ width: "100px", height: "100px", objectFit: "cover" }}
-                                                src="https://static.vecteezy.com/system/resources/previews/036/442/773/non_2x/ai-generated-portrait-of-a-young-japanese-man-no-facial-expression-half-body-shot-facing-the-camera-isolated-white-background-ai-generative-free-photo.jpg"
-                                                alt="avatar"
-                                            />{" "}
-                                        </div>
-                                        <h5>Louis Crawford</h5>
-                                        <p className="m-0">Editor, Coverage</p>
-                                    </div>
-                                </div>
+                                ))}
+  
                             </div>
                             {/* Service START */}
                             <h3 className="mb-3 mt-5">What we do</h3>

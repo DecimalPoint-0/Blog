@@ -27,7 +27,6 @@ class User(AbstractUser):
           primary_key=True, editable=False)
     email = models.EmailField(max_length=255, unique=True)
     username = models.CharField(unique=True, max_length=100)
-    full_name = models.CharField(max_length=255, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -45,12 +44,7 @@ class User(AbstractUser):
         user.save(using=self._db)
 
         return user
-    
-    def save(self, *args, **kwargs):
-        email_username, others = self.email.split('@')
-        if self.full_name == '' or self.full_name is None:
-            self.full_name = email_username
-        super(User, self).save(*args, **kwargs)
+
 
     class Meta:
         verbose_name_plural = 'User'
@@ -61,16 +55,13 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.FileField(upload_to='profile', default='profile/default.jpg', 
                              null=True, blank=True, validators=[validate_image])
+    full_name = models.CharField(max_length=255, null=True, blank=True)
     bio = models.CharField(max_length=200, null=True, blank=True)
     author = models.BooleanField(default=False)
     facebook = models.CharField(max_length=200, null=True, blank=True)
     twitter = models.CharField(max_length=200, null=True, blank=True)
     instagram = models.CharField(max_length=200, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        """overriding save method"""
-        super(Profile, self).save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.user.username
@@ -79,7 +70,7 @@ class Profile(models.Model):
         verbose_name_plural = 'Profile'
 
 # signals starts here
-def crease_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(sender, instance, created, **kwargs):
     """signal for creating profile on user create"""
     if created:
         Profile.objects.create(user=instance)
@@ -88,7 +79,7 @@ def save_user_profile(sender, instance, **kwargs):
     """signal for saving profile on user save"""
     instance.profile.save()
 
-post_save.connect(crease_user_profile, sender=User)
+post_save.connect(create_user_profile, sender=User)
 post_save.connect(save_user_profile, sender=User)
 # signal ends here
 
@@ -127,7 +118,6 @@ class Post(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, 
                                blank=True, related_name='author')
-    # profile = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=255)
     content = models.TextField()
     image = models.FileField(upload_to='post', null=True, blank=True)
@@ -148,12 +138,13 @@ class Post(models.Model):
             self.status = 'Active'
         super(Post, self).save(*args, **kwargs)
  
-    def get_author_image(self):
-        print("here")
-        if self.author and hasattr(self.author, 'profile') and self.author.profile.image:
-            return self.author.profile.image.url
-        else:
-            return '/static/images/default_profile.png'
+    def author_image(self):
+        profile = Profile.objects.get(user=self.author)
+        profile_image = profile.image
+        return profile_image
+    
+    def comments(self):
+        return Comment.objects.filter(post=self)
 
     class Meta:
         ordering = ['-date']
@@ -193,6 +184,12 @@ class Comment(models.Model):
     def __str__(self):
         return self.post.title + " " + self.comment
     
+    def commenter_image(self):
+        user = Profile.objects.get(user=self.user)
+        image = user.image
+        return image
+
+    
 
 class Notification(models.Model):
     """Model for notifications"""
@@ -200,7 +197,6 @@ class Notification(models.Model):
         ('Like', 'Like'),
         ('Comment', 'Comment'),
         ('Reply', 'Reply'),
-
     )
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -220,3 +216,17 @@ class Notification(models.Model):
     class Meta:
         ordering = ['-date']
         verbose_name_plural = "Notification"
+
+
+class Team(models.Model):
+    """Model for team members"""
+
+    full_name = models.CharField(max_length=255, null=True, blank=True)
+    position = models.CharField(max_length=255, null=True, blank=True)
+    image = models.FileField(upload_to='team', null=True, blank=True)
+
+    def __str__(self):
+        return self.full_name
+    
+    class Meta:
+        verbose_name_plural = "Team"

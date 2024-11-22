@@ -1,9 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../partials/Header";
 import Footer from "../partials/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../../utils/auth";
+import { useAuthStore } from "../../store/auth";
 
 function Login() {
+    
+    const [loginData, setLoginData] = useState({
+        'email': '',
+        'password': ''
+    })
+
+    const [isLoading, setIsLoading] = useState(false);
+
+    const navigate = useNavigate()
+
+    const handleBioDataChange = (event) => {
+        setLoginData({
+            ...loginData,
+            [event.target.name]: event.target.value,
+        });
+
+    }
+
+    const handleLogin = async (event) => {
+        event.preventDefault();
+        setIsLoading(true);
+        const {error} = await login(loginData.email, loginData.password);
+
+        if (error){
+            alert(JSON.stringify(error));
+        }else{
+            navigate("/");
+        }
+        setIsLoading(false);
+
+    }
+    
+
     return (
         <>
             <Header />
@@ -22,13 +57,13 @@ function Login() {
                                     </span>
                                 </div>
                                 {/* Form */}
-                                <form className="needs-validation" noValidate="">
+                                <form className="needs-validation" noValidate="" onSubmit={handleLogin}>
                                     {/* Username */}
                                     <div className="mb-3">
                                         <label htmlFor="email" className="form-label">
                                             Email Address
                                         </label>
-                                        <input type="email" id="email" className="form-control" name="email" placeholder="johndoe@gmail.com" required="" />
+                                        <input type="email" id="email" className="form-control" onChange={handleBioDataChange} value={loginData.email} name="email" placeholder="johndoe@gmail.com" required="" />
                                         <div className="invalid-feedback">Please enter valid username.</div>
                                     </div>
                                     {/* Password */}
@@ -36,7 +71,7 @@ function Login() {
                                         <label htmlFor="password" className="form-label">
                                             Password
                                         </label>
-                                        <input type="password" id="password" className="form-control" name="password" placeholder="**************" required="" />
+                                        <input type="password" id="password" className="form-control" onChange={handleBioDataChange} value={loginData.email} name="password" placeholder="**************" required="" />
                                         <div className="invalid-feedback">Please enter valid password.</div>
                                     </div>
                                     {/* Checkbox */}

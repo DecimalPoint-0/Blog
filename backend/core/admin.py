@@ -8,5 +8,5 @@ admin.site.register(models.Post)
 admin.site.register(models.Comment)
 admin.site.register(models.Notification)
 admin.site.register(models.PostView)
-
+admin.site.register(models.Team)
 
