@@ -37,13 +37,13 @@ Contact info START */}
                                     <p>
                                         Call:{" "}
                                         <a href="#" className="text-reset">
-                                            <u>+123 4567 890 (Toll-free)</u>
+                                            <u>07049331488</u>
                                         </a>
                                     </p>
                                     <p>
                                         Email:{" "}
                                         <a href="#" className="text-reset">
-                                            <u>desphixs@gmail.com</u>
+                                            <u>zubairuabduljelil2017@gmail.com</u>
                                         </a>
                                     </p>
                                     <p>
@@ -59,13 +59,13 @@ Contact info START */}
                                     <p>
                                         Call:{" "}
                                         <a href="#" className="text-reset">
-                                            <u>+123 4567 890 (Toll-free)</u>
+                                            <u>09012024759</u>
                                         </a>
                                     </p>
                                     <p>
                                         Email:{" "}
                                         <a href="#" className="text-reset">
-                                            <u>desphixs@gmail.com</u>
+                                            <u>zubairuabduljelil2017@gmail.com</u>
                                         </a>
                                     </p>
                                     <p>

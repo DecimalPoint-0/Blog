@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Header from "../partials/Header";
 import Footer from "../partials/Footer";
 import { Link, useParams } from "react-router-dom";
 import apiInstance from "../../utils/axios";
 import Moment from "../../plugin/Moment";
+import Toast from "../../plugin/Toast";
+import useUserData from "../../plugin/useUserData";
 
 function Detail() {
-
     const [post, setPost] = useState([]);
     const [tags, setTags] = useState([]);
+    const user_id = useUserData()?.user_id;
     const [createComment, setCreateComment] = useState({
-        name: '',
-        email: '',
         comment: ''
     })
 
     const param = useParams();
 
-    const fechPost = async () => {
+    const fetchPost = async () => {
         const response = await apiInstance.get(`posts/${param.slug}`)
         setPost(response.data);
 
@@ -32,21 +32,48 @@ function Detail() {
         })
     )
 
-    const handleCreateCommentSubmit = (event) =>{
+    const handleCreateCommentSubmit = async (event) =>{
         event.preventDefault();
         
         const json = {
             'post_id': post?.id,
             'comment': createComment.comment,
-            'user_id': createComment
-        }
+            'user_id': user_id
+        };
+
+        const response = await apiInstance.post(`posts/comment/`, json);
+        console.log(response)
+
+        Toast('success', 'comment created successfully')
+        fetchPost();
+        setCreateComment({
+            username: "",
+            comment: "",
+        });
+
     }
 
+    const handleLikeComment = async (event) =>{
+        event.preventDefault();
+        const response = await apiInstance.post(`posts/like/`, {
+            post_id: post?.id,
+            user_id: user_id
+        });
+
+        console.log(response)
+
+        Toast('success', response.data.message)
+        fetchPost();
+    }
+
+    const isFirstRender = useRef(true);
 
     useEffect(() => {
-        fechPost();
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            fetchPost();  // Only call once
+        }
     }, []);
-
     return (
         <>
             <Header />
@@ -110,6 +137,11 @@ function Detail() {
                                     ))}
                                   
                                 </ul>
+
+                                <button className="btn btn-success" onClick={handleLikeComment}>
+                                    <i className="fas fa-thumbs-up me-2"></i>{post?.likes?.length}
+                                </button>
+                                
                             </div>
                         </div>
                         {/* Left sidebar END */}
@@ -140,19 +172,11 @@ function Detail() {
                             {/* Reply START */}
                             <div className="bg-light p-3 rounded">
                                 <h3 className="fw-bold">Leave a reply</h3>
-                                <small>Your email address will not be published. Required fields are marked *</small>
+                                <small>Required fields are marked *</small>
                                 <form className="row g-3 mt-2" onSubmit={handleCreateCommentSubmit}>
-                                    <div className="col-md-6">
-                                        <label className="form-label">Name *</label>
-                                        <input type="text" onChange={handleCreateCommentChange} name="name" className="form-control" aria-label="First name" />
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">Email *</label>
-                                        <input type="email" onChange={handleCreateCommentChange} name="email" className="form-control" />
-                                    </div>
                                     <div className="col-12">
                                         <label className="form-label">Write Comment *</label>
-                                        <textarea className="form-control" rows={4} onChange={handleCreateCommentChange} name="comment" />
+                                        <textarea className="form-control" value={createComment.comment} rows={4} onChange={handleCreateCommentChange} name="comment" />
                                     </div>
                                     <div className="col-12">
                                         <button type="submit" className="btn btn-primary">

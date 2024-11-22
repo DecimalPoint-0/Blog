@@ -7,6 +7,7 @@ import apiInstance from "../../utils/axios";
 import Toast from "../../plugin/Toast";
 import Moment from "../../plugin/Moment";
 
+
 // Fetching all articles from the API
 function Index() {
     const [posts, setPosts] = useState([]);
@@ -90,7 +91,6 @@ function Index() {
                                     </div>
                                 </div>
                             </div>
-
                         ))}
                     </div>
                     

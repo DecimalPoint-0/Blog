@@ -11,7 +11,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        token['full_name'] = user.full_name
         token['email'] = user.email
 
         return token
@@ -24,7 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ['full_name', 'email', 'password', 'password2']
+        fields = ['email', 'password', 'password2']
         extra_kwargs = {
             'password': {
                 'write_only': True,
@@ -41,7 +40,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         user = models.User.objects.create(
-            full_name = validated_data['full_name'],
             email = validated_data['email'],
             username = validated_data['email'].split('@')[0],
         )
@@ -103,7 +101,6 @@ class PostSerializer(serializers.ModelSerializer):
         extra_fields = ['author_bio', 'author_name', 'category', 'author_image']
     
     def __init__(self, *args, **kwargs):
-       
         super(PostSerializer, self).__init__(*args, **kwargs)
         request = self.context.get('request')
         if request and request.method == 'POST':
@@ -132,3 +129,12 @@ class AuthorSerializer(serializers.Serializer):
     views = serializers.IntegerField(default=0)
     posts = serializers.IntegerField(default=0)
     likes = serializers.IntegerField(default=0)
+
+
+class TeamSerializer(serializers.ModelSerializer):
+    """Team serializer"""
+
+    class Meta:
+        model = models.Team
+        fields = '__all__'
+
